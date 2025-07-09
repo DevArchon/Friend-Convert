@@ -12,13 +12,28 @@ import { useState } from 'react';
 import { BsGrid, BsListUl } from 'react-icons/bs';
 import { FaUserFriends, FaUserPlus } from 'react-icons/fa';
 
-const actions = [
+interface HeaderProps {
+  page: string;
+  setPage: (page: string) => void;
+  isLoggedIn: boolean;
+  setIsLoggedIn: (isLoggedIn: boolean) => void;
+}
+
+interface ActionItem {
+  icon: React.ReactElement;
+  label: string;
+  page?: string;
+  action?: string;
+}
+
+const actions: ActionItem[] = [
   {
     icon: React.createElement(GoHomeFill as any, {
       size: 20,
       color: '#606060',
     }),
     label: 'Home',
+    page: 'home',
   },
   {
     icon: React.createElement(BsGrid as any, { size: 20, color: '#606060' }),
@@ -35,19 +50,28 @@ const actions = [
     }),
     label: "Send friend requests to friend's friends",
   },
-  {
-    icon: React.createElement(RiDeleteBin5Fill as any, {
-      size: 20,
-      color: '#606060',
-    }),
-    label: 'Delete unaccepted friend requests',
-  },
+  // {
+  //   icon: React.createElement(RiDeleteBin5Fill as any, {
+  //     size: 20,
+  //     color: '#606060',
+  //   }),
+  //   label: 'Delete unaccepted friend requests',
+  // },
   {
     icon: React.createElement(FaUserPlus as any, {
       size: 20,
       color: '#606060',
     }),
     label: 'Add targeted friends',
+    page: 'targetFriends',
+  },
+  {
+    icon: React.createElement(RiDeleteBin5Fill as any, {
+      size: 20,
+      color: '#606060',
+    }),
+    label: 'Delete unaccepted friend requests',
+    page: 'cancelPending',
   },
   {
     icon: React.createElement(FiLogOut as any, {
@@ -55,10 +79,17 @@ const actions = [
       color: '#606060',
     }),
     label: 'Logout',
+    page: 'login',
+    action: 'logout',
   },
 ];
 
-const Header: React.FC = () => {
+const Header: React.FC<HeaderProps> = ({
+  page,
+  setPage,
+  isLoggedIn,
+  setIsLoggedIn,
+}) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   return (
     <header className="header">
@@ -93,7 +124,29 @@ const Header: React.FC = () => {
         </div>
         <div className="action-options">
           {actions.map((action, index) => (
-            <ActionButton key={index} icon={action.icon} label={action.label} />
+            <ActionButton
+              key={index}
+              icon={action.icon}
+              label={action.label}
+              onClick={
+                action.page
+                  ? () => {
+                      if (action.action === 'logout') {
+                        // Clear the license key from chrome.storage.local
+                        setIsLoggedIn(false);
+                        setIsMenuOpen(false);
+                        chrome.storage.local.remove('licenseKey', () => {
+                          console.log('License key cleared');
+                        });
+                        setPage(action.page!);
+                      } else {
+                        setPage(action.page!);
+                        setIsMenuOpen(false);
+                      }
+                    }
+                  : undefined
+              }
+            />
           ))}
         </div>
       </div>
