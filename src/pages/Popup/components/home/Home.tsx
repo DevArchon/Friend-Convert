@@ -9,11 +9,17 @@ import { RiDeleteBin5Fill } from 'react-icons/ri';
 import { BsGrid, BsListUl } from 'react-icons/bs';
 import { FaUserFriends, FaTrashAlt, FaUserPlus } from 'react-icons/fa';
 
+interface HomeProps {
+  page: string;
+  setPage: (page: string) => void;
+}
+
 // Array of data for the action buttons
 export const actions = [
   {
     icon: React.createElement(BsGrid as any, { size: 20, color: '#00b965' }),
     label: 'Friends impressions dashboard',
+    page: 'friendsImpression',
   },
   {
     icon: React.createElement(BsListUl as any, { size: 20, color: '#00b965' }),
@@ -39,16 +45,27 @@ export const actions = [
       color: '#00b965',
     }),
     label: 'Add targeted friends',
+    page: 'targetFriends',
   },
 ];
 
-const Home: React.FC = () => {
+const Home: React.FC<HomeProps> = ({ page, setPage }) => {
+  const handleClick = (actionPage: string) => {
+    console.log('Button clicked, setting page to:', actionPage);
+    setPage(actionPage);
+  };
+
   return (
     <div className="app-container">
       {/* <Header /> */}
       <main className="actions-grid">
         {actions.map((action, index) => (
-          <ActionButton key={index} icon={action.icon} label={action.label} />
+          <ActionButton
+            key={index}
+            icon={action.icon}
+            label={action.label}
+            onClick={action.page ? () => handleClick(action.page) : undefined}
+          />
         ))}
       </main>
       {/* <Footer /> */}
